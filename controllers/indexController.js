@@ -1,7 +1,26 @@
 import prisma from "../config/prismaClient.js";
 
 const indexController = {
-  startGame: (req, res, next) => {},
+  startGame: async (req, res, next) => {
+    let session;
+    try {
+      session = await prisma.gameSession.create();
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Error creating the game",
+        errors: err,
+      });
+    }
+    let sessionID = session.id;
+    res.status(201).json({
+      success: true,
+      message: "Game session created",
+      data: {
+        session: session.id,
+      },
+    });
+  },
   endGame: (req, res, next) => {},
   getScore: async (req, res, next) => {
     let scores;
