@@ -28,3 +28,7 @@ Routes/Controllers:
   - Gets the results from the database and returns them to the user
 
 Initially I don't feel like this needs much more. Just need to make sure that I manage to get the coordinates and everything correct across devices etc. I think this can all be added in the front end.
+
+Diary:
+
+- Well that was a pain. Just spent ages trying to work out why I was getting a prisma generate Error. Thought that it was because I was importing the client wrong or something. Turns out that I had a custom output file from the prisma generator.
