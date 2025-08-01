@@ -32,3 +32,4 @@ Initially I don't feel like this needs much more. Just need to make sure that I 
 Diary:
 
 - Well that was a pain. Just spent ages trying to work out why I was getting a prisma generate Error. Thought that it was because I was importing the client wrong or something. Turns out that I had a custom output file from the prisma generator.
+ - Have built those three main routes/controllers and done a bunch of testing. I think that these should cover everything that I will want from the backend. But it will be interesting to see when I build the frontend. 
