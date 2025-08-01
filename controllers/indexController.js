@@ -1,18 +1,23 @@
 import prisma from "../config/prismaClient.js";
 import { formatDistanceToNowStrict } from "date-fns";
+import gameController from "./gameController.js";
 
 const indexController = {
+  // Function to begin a game session and return the ID to the user
   startGame: async (req, res, next) => {
     let session;
     try {
+      //Creating the session within the database
       session = await prisma.gameSession.create({ data: {} });
     } catch (err) {
+      // Error handler
       res.status(500).json({
         success: false,
         message: "Error creating the game",
         errors: err,
       });
     }
+    // Let the user know the session has been created and send them the session ID - to be returned with the finished game
     res.status(201).json({
       success: true,
       message: "Game session created",
@@ -21,41 +26,61 @@ const indexController = {
       },
     });
   },
+  // Ending the game - if successful then will add to leaderboard
   endGame: async (req, res, next) => {
-    // Compare X and Y with database
-    // If further out than the tolerance then return that they failed
     let originalGame;
     try {
+      // Checking that they have a legitimate game session
       originalGame = await prisma.gameSession.findUnique({
         where: {
           id: req.body.id,
         },
       });
     } catch (err) {
+      // Error handler
       res.status(500).json({
         success: false,
         message: "Error ending the game",
         errors: err,
       });
     }
+    // If they give an incorrect session ID then return with a 404 not found
     if (!originalGame) {
       res.status(404).json({
         success: false,
         message: "Incorrect game session ID",
-        errors: err,
       });
     } else {
-      const lengthOfGame = formatDistanceToNowStrict(
-        new Date(originalGame.createdAt)
-      );
-      // Add to leaderboard
-      res.status(201).json({
-        success: true,
-        message: "You found Waldo!",
-        data: {
-          timeToFind: lengthOfGame,
+      // Delete the game session
+      await prisma.gameSession.delete({
+        where: {
+          id: req.body.id,
         },
       });
+      // Testing if their X and Y clicks are within the bounds allowed. If they didn't win then they get handled differently
+      if (gameController(req.body.x, req.body.y)) {
+        // We now know that they have a legitimate game AND they won that game - so let's work out how long since they started
+        const lengthOfGame = formatDistanceToNowStrict(
+          new Date(originalGame.createdAt),
+          { unit: "second" }
+        );
+        // Add to leaderboard
+        // Successfully found Waldo
+        // Will likely send the updated leaderboard as well
+        res.status(201).json({
+          success: true,
+          message: "You found Waldo!",
+          data: {
+            timeTaken: lengthOfGame,
+            withinTolerance: true,
+          },
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: "You failed to find Waldo!",
+        });
+      }
     }
   },
   getScore: async (req, res, next) => {
