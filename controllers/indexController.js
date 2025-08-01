@@ -1,4 +1,5 @@
 import prisma from "../config/prismaClient.js";
+import { formatDistanceToNowStrict } from "date-fns";
 
 const indexController = {
   startGame: async (req, res, next) => {
@@ -20,7 +21,43 @@ const indexController = {
       },
     });
   },
-  endGame: (req, res, next) => {},
+  endGame: async (req, res, next) => {
+    // Compare X and Y with database
+    // If further out than the tolerance then return that they failed
+    let originalGame;
+    try {
+      originalGame = await prisma.gameSession.findUnique({
+        where: {
+          id: req.body.id,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({
+        success: false,
+        message: "Error ending the game",
+        errors: err,
+      });
+    }
+    if (!originalGame) {
+      res.status(404).json({
+        success: false,
+        message: "Incorrect game session ID",
+        errors: err,
+      });
+    } else {
+      const lengthOfGame = formatDistanceToNowStrict(
+        new Date(originalGame.createdAt)
+      );
+      // Add to leaderboard
+      res.status(201).json({
+        success: true,
+        message: "You found Waldo!",
+        data: {
+          timeToFind: lengthOfGame,
+        },
+      });
+    }
+  },
   getScore: async (req, res, next) => {
     let scores;
     try {
