@@ -69,8 +69,17 @@ const indexController = {
           new Date(),
           new Date(originalGame.createdAt)
         );
-        addToLeaderboard(req.username);
-        // Successfully found Waldo
+        const inLeaderboard = await addToLeaderboard(
+          req.body.username,
+          lengthOfGame
+        );
+
+        if (!inLeaderboard) {
+          return res.status(500).json({
+            success: false,
+            message: "Score couldn't be added to the Leaderboard",
+          });
+        }
         // Will likely send the updated leaderboard as well
         res.status(201).json({
           success: true,
@@ -101,7 +110,7 @@ const indexController = {
     }
     res.status(200).json({
       success: true,
-      message: "Updates scores",
+      message: "Updated scores",
       data: {
         scores: scores,
       },
