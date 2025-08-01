@@ -1,6 +1,11 @@
 import prisma from "../config/prismaClient.js";
-import { formatDistanceToNowStrict } from "date-fns";
+import {
+  differenceInMilliseconds,
+  differenceInSeconds,
+  formatDistanceToNowStrict,
+} from "date-fns";
 import gameController from "./gameController.js";
+import addToLeaderboard from "./addToLeaderboard.js";
 
 const indexController = {
   // Function to begin a game session and return the ID to the user
@@ -60,11 +65,11 @@ const indexController = {
       // Testing if their X and Y clicks are within the bounds allowed. If they didn't win then they get handled differently
       if (gameController(req.body.x, req.body.y)) {
         // We now know that they have a legitimate game AND they won that game - so let's work out how long since they started
-        const lengthOfGame = formatDistanceToNowStrict(
-          new Date(originalGame.createdAt),
-          { unit: "second" }
+        const lengthOfGame = differenceInMilliseconds(
+          new Date(),
+          new Date(originalGame.createdAt)
         );
-        // Add to leaderboard
+        addToLeaderboard(req.username);
         // Successfully found Waldo
         // Will likely send the updated leaderboard as well
         res.status(201).json({
