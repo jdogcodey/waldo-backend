@@ -4,7 +4,7 @@ const indexController = {
   startGame: async (req, res, next) => {
     let session;
     try {
-      session = await prisma.gameSession.create();
+      session = await prisma.gameSession.create({ data: {} });
     } catch (err) {
       res.status(500).json({
         success: false,
@@ -12,7 +12,6 @@ const indexController = {
         errors: err,
       });
     }
-    let sessionID = session.id;
     res.status(201).json({
       success: true,
       message: "Game session created",
