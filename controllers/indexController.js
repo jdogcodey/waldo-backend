@@ -10,6 +10,7 @@ import addToLeaderboard from "./addToLeaderboard.js";
 const indexController = {
   // Function to begin a game session and return the ID to the user
   startGame: async (req, res, next) => {
+    console.log("game started");
     let session;
     try {
       //Creating the session within the database
@@ -85,8 +86,7 @@ const indexController = {
           success: true,
           message: "You found Waldo!",
           data: {
-            timeTaken: lengthOfGame,
-            withinTolerance: true,
+            userResult: inLeaderboard,
           },
         });
       } else {

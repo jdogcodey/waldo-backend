@@ -4,13 +4,13 @@ export default async function addToLeaderboard(username, time) {
   try {
     console.log(username);
     console.log(time);
-    await prisma.scores.create({
+    const inDatabase = await prisma.scores.create({
       data: {
         username: username,
         completionTime: time,
       },
     });
-    return true;
+    return inDatabase;
   } catch (err) {
     return false;
   }
