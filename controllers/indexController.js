@@ -93,6 +93,9 @@ const indexController = {
         res.status(200).json({
           success: true,
           message: "You failed to find Waldo!",
+          data: {
+            userResult: null,
+          },
         });
       }
     }
